@@ -1,0 +1,31 @@
+{
+  "name": "temporal",
+  "version": "2020.513.0",
+  "description": "Provides standard objects and functions for working with dates and times.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./tests/example.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThaTiemsz/tc39-temporal.git"
+  },
+  "keywords": [
+    "TC39",
+    "Polyfill",
+    "Absolute",
+    "TimeZone",
+    "DateTime",
+    "Date",
+    "YearMonth",
+    "YearDay",
+    "Duration",
+    "proposal"
+  ],
+  "author": "Ujjwal Sharma <usharma@igalia.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/ThaTiemsz/tc39-temporal/issues"
+  },
+  "homepage": "https://github.com/ThaTiemsz/tc39-temporal#readme"
+}
