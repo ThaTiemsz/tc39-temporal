@@ -8,7 +8,7 @@ Reference documentation can be found [here](https://github.com/tc39/proposal-tem
 
 Install via Node.js:
 ```
-npm install ThaTiemsz/tc39-proposal
+npm install ThaTiemsz/tc39-temporal
 ```
 
 ## Usage
