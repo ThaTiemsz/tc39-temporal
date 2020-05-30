@@ -1,6 +1,8 @@
 # Temporal
 
-Polyfill for the [Temporal proposal](https://github.com/tc39/proposal-temporal) in ECMAScript.
+[![NPM](https://nodeico.herokuapp.com/@thatiemsz/tc39-temporal.svg)](https://npmjs.com/package/@thatiemsz/tc39-temporal)
+
+Polyfill for the [Temporal proposal](https://github.com/tc39/proposal-temporal) in ECMAScript. (includes TypesScript typings)
 
 Reference documentation can be found [here](https://github.com/tc39/proposal-temporal/tree/fbb085cd3e631a94e67491355ceb9c6d6e216de0/docs).
 
@@ -8,7 +10,7 @@ Reference documentation can be found [here](https://github.com/tc39/proposal-tem
 
 Install via Node.js:
 ```
-npm install ThaTiemsz/tc39-temporal
+npm install @ThaTiemsz/tc39-temporal
 ```
 
 ## Usage
