@@ -2,7 +2,7 @@
 
 Polyfill for the [Temporal proposal](https://github.com/tc39/proposal-temporal) in ECMAScript.
 
-Reference documentation can be found [here](https://github.com/tc39/proposal-temporal/tree/71951633bdd20a6b3226830f3e74d60977ef4a59/docs).
+Reference documentation can be found [here](https://github.com/tc39/proposal-temporal/tree/fbb085cd3e631a94e67491355ceb9c6d6e216de0/docs).
 
 ## Installation
 
