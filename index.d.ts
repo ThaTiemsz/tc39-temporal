@@ -204,11 +204,53 @@ export namespace Temporal {
       other: Temporal.Absolute,
       options?: DifferenceOptions<'days' | 'hours' | 'minutes' | 'seconds'>
     ): Temporal.Duration;
-    inTimeZone(tzLike?: Temporal.TimeZone | string): Temporal.DateTime;
+    inTimeZone(tzLike?: TimeZoneProtocol | string, calendar?: CalendarProtocol | string): Temporal.DateTime;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
-    toString(tzLike?: Temporal.TimeZone | string): string;
+    toString(tzLike?: TimeZoneProtocol | string): string;
   }
+
+  type CalendarProtocol = {
+    id: string;
+    year(date: Temporal.Date): number;
+    month(date: Temporal.Date): number;
+    day(date: Temporal.Date): number;
+    era(date: Temporal.Date): unknown;
+    dayOfWeek?(date: Temporal.Date): number;
+    dayOfYear?(date: Temporal.Date): number;
+    weekOfYear?(date: Temporal.Date): number;
+    daysInMonth?(date: Temporal.Date): number;
+    daysInYear?(date: Temporal.Date): number;
+    isLeapYear?(date: Temporal.Date): boolean;
+    dateFromFields(
+      fields: DateLike,
+      options: AssignmentOptions,
+      constructor: ConstructorOf<Temporal.Date>
+    ): Temporal.Date;
+    yearMonthFromFields(
+      fields: YearMonthLike,
+      options: AssignmentOptions,
+      constructor: ConstructorOf<Temporal.YearMonth>
+    ): Temporal.YearMonth;
+    monthDayFromFields(
+      fields: MonthDayLike,
+      options: AssignmentOptions,
+      constructor: ConstructorOf<Temporal.MonthDay>
+    ): Temporal.MonthDay;
+    plus?(
+      date: Temporal.Date,
+      duration: Temporal.Duration,
+      options: ArithmeticOptions,
+      constructor: ConstructorOf<Temporal.Date>
+    ): Temporal.Date;
+    minus?(
+      date: Temporal.Date,
+      duration: Temporal.Duration,
+      options: ArithmeticOptions,
+      constructor: ConstructorOf<Temporal.Date>
+    ): Temporal.Date;
+    difference?(smaller: Temporal.Date, larger: Temporal.Date, options: DifferenceOptions);
+  };
 
   /**
    * A `Temporal.Calendar` is a representation of a calendar system. It includes
@@ -218,13 +260,14 @@ export namespace Temporal {
    *
    * See https://tc39.es/proposal-temporal/docs/calendar.html for more details.
    */
-  export class Calendar {
+  export class Calendar implements Required<CalendarProtocol> {
     static from(item: Temporal.Calendar | string): Temporal.Calendar;
     constructor(calendarIdentifier: string);
     readonly id: string;
     year(date: Temporal.Date): number;
     month(date: Temporal.Date): number;
     day(date: Temporal.Date): number;
+    era(date: Temporal.Date): unknown;
     dayOfWeek(date: Temporal.Date): number;
     dayOfYear(date: Temporal.Date): number;
     weekOfYear(date: Temporal.Date): number;
@@ -263,9 +306,19 @@ export namespace Temporal {
   }
 
   export type DateLike = {
+    era?: unknown;
     year?: number;
     month?: number;
     day?: number;
+    calendar?: string | CalendarProtocol;
+  };
+
+  type DateFields = {
+    era: unknown;
+    year: number;
+    month: number;
+    day: number;
+    calendar: CalendarProtocol;
   };
 
   type DateISOCalendarFields = {
@@ -286,10 +339,12 @@ export namespace Temporal {
   export class Date implements Required<DateLike> {
     static from(item: Temporal.Date | DateLike | string, options?: AssignmentOptions): Temporal.Date;
     static compare(one: Temporal.Date, two: Temporal.Date): ComparisonResult;
-    constructor(isoYear: number, isoMonth: number, isoDay: number);
+    constructor(isoYear: number, isoMonth: number, isoDay: number, calendar?: CalendarProtocol);
     readonly year: number;
     readonly month: number;
     readonly day: number;
+    readonly calendar: CalendarProtocol;
+    readonly era: unknown;
     readonly dayOfWeek: number;
     readonly dayOfYear: number;
     readonly weekOfYear: number;
@@ -298,6 +353,7 @@ export namespace Temporal {
     readonly isLeapYear: boolean;
     equals(other: Temporal.Date): boolean;
     with(dateLike: DateLike, options?: AssignmentOptions): Temporal.Date;
+    withCalendar(calendar: string | CalendarProtocol): Temporal.Date;
     plus(durationLike: Temporal.Duration | DurationLike, options?: ArithmeticOptions): Temporal.Date;
     minus(durationLike: Temporal.Duration | DurationLike, options?: ArithmeticOptions): Temporal.Date;
     difference(
@@ -307,7 +363,7 @@ export namespace Temporal {
     withTime(temporalTime: Temporal.Time): Temporal.DateTime;
     getYearMonth(): Temporal.YearMonth;
     getMonthDay(): Temporal.MonthDay;
-    getFields(): Required<DateLike>;
+    getFields(): DateFields;
     getISOCalendarFields(): DateISOCalendarFields;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
@@ -315,6 +371,7 @@ export namespace Temporal {
   }
 
   export type DateTimeLike = {
+    era?: unknown;
     year?: number;
     month?: number;
     day?: number;
@@ -324,6 +381,21 @@ export namespace Temporal {
     millisecond?: number;
     microsecond?: number;
     nanosecond?: number;
+    calendar?: string | CalendarProtocol;
+  };
+
+  type DateTimeFields = {
+    era: unknown;
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+    millisecond: number;
+    microsecond: number;
+    nanosecond: number;
+    calendar: CalendarProtocol;
   };
 
   type DateTimeISOCalendarFields = {
@@ -360,7 +432,8 @@ export namespace Temporal {
       second?: number,
       millisecond?: number,
       microsecond?: number,
-      nanosecond?: number
+      nanosecond?: number,
+      calendar?: CalendarProtocol
     );
     readonly year: number;
     readonly month: number;
@@ -371,6 +444,8 @@ export namespace Temporal {
     readonly millisecond: number;
     readonly microsecond: number;
     readonly nanosecond: number;
+    readonly calendar: CalendarProtocol;
+    readonly era: unknown;
     readonly dayOfWeek: number;
     readonly dayOfYear: number;
     readonly weekOfYear: number;
@@ -379,18 +454,19 @@ export namespace Temporal {
     readonly isLeapYear: boolean;
     equals(other: Temporal.DateTime): boolean;
     with(dateTimeLike: DateTimeLike, options?: AssignmentOptions): Temporal.DateTime;
+    withCalendar(calendar: string | CalendarProtocol): Temporal.DateTime;
     plus(durationLike: Temporal.Duration | DurationLike, options?: ArithmeticOptions): Temporal.DateTime;
     minus(durationLike: Temporal.Duration | DurationLike, options?: ArithmeticOptions): Temporal.DateTime;
     difference(
       other: Temporal.DateTime,
       options?: DifferenceOptions<'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes' | 'seconds'>
     ): Temporal.Duration;
-    inTimeZone(tzLike: Temporal.TimeZone | string, options?: ToAbsoluteOptions): Temporal.Absolute;
+    inTimeZone(tzLike: TimeZoneProtocol | string, options?: ToAbsoluteOptions): Temporal.Absolute;
     getDate(): Temporal.Date;
     getYearMonth(): Temporal.YearMonth;
     getMonthDay(): Temporal.MonthDay;
     getTime(): Temporal.Time;
-    getFields(): Required<DateTimeLike>;
+    getFields(): DateTimeFields;
     getISOCalendarFields(): DateTimeISOCalendarFields;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
@@ -402,6 +478,12 @@ export namespace Temporal {
     day?: number;
   };
 
+  type MonthDayFields = {
+    month: number;
+    day: number;
+    calendar: CalendarProtocol;
+  };
+
   /**
    * A `Temporal.MonthDay` represents a particular day on the calendar, but
    * without a year. For example, it could be used to represent a yearly
@@ -411,13 +493,14 @@ export namespace Temporal {
    */
   export class MonthDay implements Required<MonthDayLike> {
     static from(item: Temporal.MonthDay | MonthDayLike | string, options?: AssignmentOptions): Temporal.MonthDay;
-    constructor(isoMonth: number, isoDay: number);
+    constructor(isoMonth: number, isoDay: number, calendar?: CalendarProtocol, refISOYear?: number);
     readonly month: number;
     readonly day: number;
+    readonly calendar: CalendarProtocol;
     equals(other: Temporal.MonthDay): boolean;
     with(monthDayLike: MonthDayLike, options?: AssignmentOptions): Temporal.MonthDay;
-    withYear(year: number | { year: number }): Temporal.Date;
-    getFields(): Required<MonthDayLike>;
+    withYear(year: number | { era?: unknown; year: number }): Temporal.Date;
+    getFields(): MonthDayFields;
     getISOCalendarFields(): DateISOCalendarFields;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
@@ -478,6 +561,21 @@ export namespace Temporal {
   }
 
   /**
+   * A plain object implementing the protocol for a custom time zone.
+   */
+  class TimeZoneProtocol {
+    name?: string;
+    getOffsetNanosecondsFor(absolute: Temporal.Absolute): number;
+    getOffsetStringFor?(absolute: Temporal.Absolute): string;
+    getDateTimeFor?(absolute: Temporal.Absolute): Temporal.DateTime;
+    getAbsoluteFor?(dateTime: Temporal.DateTime, options?: ToAbsoluteOptions): Temporal.Absolute;
+    getTransitions?(startingPoint: Temporal.Absolute): IteratorResult<Temporal.Absolute>;
+    getPossibleAbsolutesFor(dateTime: Temporal.DateTime): Temporal.Absolute[];
+    toString(): string;
+    toJSON?(): string;
+  }
+
+  /**
    * A `Temporal.TimeZone` is a representation of a time zone: either an
    * {@link https://www.iana.org/time-zones|IANA time zone}, including
    * information about the time zone such as the offset between the local time
@@ -490,13 +588,13 @@ export namespace Temporal {
    *
    * See https://tc39.es/proposal-temporal/docs/timezone.html for more details.
    */
-  export class TimeZone {
+  export class TimeZone implements Required<TimeZoneProtocol> {
     static from(timeZone: Temporal.TimeZone | string): Temporal.TimeZone;
     constructor(timeZoneIdentifier: string);
     readonly name: string;
     getOffsetNanosecondsFor(absolute: Temporal.Absolute): number;
     getOffsetStringFor(absolute: Temporal.Absolute): string;
-    getDateTimeFor(absolute: Temporal.Absolute): Temporal.DateTime;
+    getDateTimeFor(absolute: Temporal.Absolute, calendar?: CalendarProtocol | string): Temporal.DateTime;
     getAbsoluteFor(dateTime: Temporal.DateTime, options?: ToAbsoluteOptions): Temporal.Absolute;
     getTransitions(startingPoint: Temporal.Absolute): IteratorResult<Temporal.Absolute>;
     getPossibleAbsolutesFor(dateTime: Temporal.DateTime): Temporal.Absolute[];
@@ -505,8 +603,16 @@ export namespace Temporal {
   }
 
   export type YearMonthLike = {
+    era?: unknown;
     year?: number;
     month?: number;
+  };
+
+  type YearMonthFields = {
+    era: unknown;
+    year: number;
+    month: number;
+    calendar: CalendarProtocol;
   };
 
   /**
@@ -519,9 +625,11 @@ export namespace Temporal {
   export class YearMonth implements Required<YearMonthLike> {
     static from(item: Temporal.YearMonth | YearMonthLike | string, options?: AssignmentOptions): Temporal.YearMonth;
     static compare(one: Temporal.YearMonth, two: Temporal.YearMonth): ComparisonResult;
-    constructor(isoYear: number, isoMonth: number);
+    constructor(isoYear: number, isoMonth: number, calendar?: CalendarProtocol, refISODay?: number);
     readonly year: number;
     readonly month: number;
+    readonly calendar: CalendarProtocol;
+    readonly era: unknown;
     readonly daysInMonth: number;
     readonly daysInYear: number;
     readonly isLeapYear: boolean;
@@ -531,7 +639,7 @@ export namespace Temporal {
     minus(durationLike: Temporal.Duration | DurationLike, options?: ArithmeticOptions): Temporal.YearMonth;
     difference(other: Temporal.YearMonth, options?: DifferenceOptions<'years' | 'months'>): Temporal.Duration;
     withDay(day: number): Temporal.Date;
-    getFields(): Required<YearMonthLike>;
+    getFields(): YearMonthFields;
     getISOCalendarFields(): DateISOCalendarFields;
     toLocaleString(locales?: string | string[], options?: Intl.DateTimeFormatOptions): string;
     toJSON(): string;
@@ -558,32 +666,44 @@ export namespace Temporal {
     /**
      * Get the current calendar date and clock time in a specific time zone.
      *
-     * @param {Temporal.TimeZone | string} [tzLike] -
+     * @param {TimeZoneProtocol | string} [tzLike] -
      * {@link https://en.wikipedia.org/wiki/List_of_tz_database_time_zones|IANA time zone identifier}
-     * string (e.g. `'Europe/London'`) or a `Temporal.TimeZone` instance. If omitted,
+     * string (e.g. `'Europe/London'`), `Temporal.TimeZone` instance, or an
+     * object implementing the time zone protocol. If omitted,
      * the environment's current time zone will be used.
+     * @param {Temporal.Calendar | string} [calendar] - calendar identifier, or
+     * a `Temporal.Calendar` instance, or an object implementing the calendar
+     * protocol. If omitted, the ISO 8601 calendar is used.
      */
-    export function dateTime(tzLike?: Temporal.TimeZone | string): Temporal.DateTime;
+    export function dateTime(
+      tzLike?: TimeZoneProtocol | string,
+      calendar?: CalendarProtocol | string
+    ): Temporal.DateTime;
 
     /**
      * Get the current calendar date in a specific time zone.
      *
-     * @param {Temporal.TimeZone | string} [tzLike] -
+     * @param {TimeZoneProtocol | string} [tzLike] -
      * {@link https://en.wikipedia.org/wiki/List_of_tz_database_time_zones|IANA time zone identifier}
-     * string (e.g. `'Europe/London'`) or a `Temporal.TimeZone` instance. If omitted,
+     * string (e.g. `'Europe/London'`), `Temporal.TimeZone` instance, or an
+     * object implementing the time zone protocol. If omitted,
      * the environment's current time zone will be used.
+     * @param {Temporal.Calendar | string} [calendar] - calendar identifier, or
+     * a `Temporal.Calendar` instance, or an object implementing the calendar
+     * protocol. If omitted, the ISO 8601 calendar is used.
      */
-    export function date(tzLike?: Temporal.TimeZone | string): Temporal.Date;
+    export function date(tzLike?: TimeZoneProtocol | string, calendar?: CalendarProtocol | string): Temporal.Date;
 
     /**
      * Get the current clock time in a specific time zone.
      *
-     * @param {Temporal.TimeZone | string} [tzLike] -
+     * @param {TimeZoneProtocol | string} [tzLike] -
      * {@link https://en.wikipedia.org/wiki/List_of_tz_database_time_zones|IANA time zone identifier}
-     * string (e.g. `'Europe/London'`) or a `Temporal.TimeZone` instance. If omitted,
-     * the environment's current time zone will be used.
+     * string (e.g. `'Europe/London'`), `Temporal.TimeZone` instance, or an
+     * object implementing the time zone protocol. If omitted, the environment's
+     * current time zone will be used.
      */
-    export function time(tzLike?: Temporal.TimeZone | string): Temporal.Time;
+    export function time(tzLike?: TimeZoneProtocol | string): Temporal.Time;
 
     /**
      * Get the environment's current time zone.
