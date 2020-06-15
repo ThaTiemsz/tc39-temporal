@@ -1,6 +1,6 @@
 {
   "name": "@thatiemsz/tc39-temporal",
-  "version": "2020.613.0",
+  "version": "2020.615.0",
   "description": "Provides standard objects and functions for working with dates and times.",
   "main": "index.js",
   "types": "index.d.ts",
