@@ -1,5 +1,9 @@
 # Temporal
 
+> **Use the official NPM package by TC39 instead: https://www.npmjs.com/package/proposal-temporal**
+
+---
+
 [![NPM](https://nodeico.herokuapp.com/@thatiemsz/tc39-temporal.svg)](https://npmjs.com/package/@thatiemsz/tc39-temporal)
 
 Polyfill for the [Temporal proposal](https://github.com/tc39/proposal-temporal) in ECMAScript. (includes TypesScript typings)
